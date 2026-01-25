@@ -22,3 +22,17 @@ from employees
 )select AVG(salary)
 from cte
 where sal_asc in (sal_desc,sal_desc+1,sal_desc-1);
+
+
+--? works on both even and odd no. of rows
+with cte as (
+    select 
+        salary,
+        row_number() over(order by salary) as rn_asc,
+        row_number() over(order by salary desc) as rn_desc
+    from employees
+)
+select avg(salary) as median_salary
+from cte
+-- Cast to signed to allow the negative result before ABS() handles it
+where abs(cast(rn_asc as signed) - cast(rn_desc as signed)) <= 1;
